@@ -1,8 +1,8 @@
 import random
+import time
 from selenium import webdriver
 
-driver = webdriver.Chrome('D:\chromedriver.exe')
-base_url = 'https://translate.google.sk/?hl=sk&tab=wT#sk/sk/'
+base_url = 'https://translate.google.sk/?hl=sk&tab=wT#sk/sk/Priprav sa%0A%0A'
 
 def generation_numbers(size=1, count=1):
     list_numbers = []
@@ -16,8 +16,22 @@ def generation_numbers(size=1, count=1):
         list_numbers.append(number)
     return list_numbers
 
+def save_testing_numbers(numbers):
+    fh = None
+    try:
+        fh = open('log.txt','a')
+        for i, number in enumerate(numbers):
+            fh.write(str(i)+' - '+number + '\n')
+    except FileNotFoundError as err:
+        print('Error File')
+    finally:
+        if fh is not None:
+            fh.close()
+
 def create_google_url(size=1, count=1):
+    global numbers
     numbers = generation_numbers(size, count)
+    save_testing_numbers(numbers)
     list_urls = []
     delimeter = '%0A'
     url = ''
@@ -28,6 +42,13 @@ def create_google_url(size=1, count=1):
         list_urls.append(url)
     return list_urls
 
-urls = create_google_url(size=5, count=2)
-driver.get(urls[1])
-#print(create_google_url(size=5, count=5))
+urls = create_google_url(size=5, count=5)
+
+for i in range(len(urls)):
+    driver = webdriver.Chrome()
+    driver.get(urls[i])
+    time.sleep(1)
+    element = driver.find_element_by_css_selector("div[class='trans-listen-button goog-toolbar-button'] span[class='jfk-button-img']")
+    element.click()
+    time.sleep(10)
+    driver.quit()
